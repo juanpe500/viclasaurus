@@ -11,7 +11,7 @@ header, a footer, a 404 page, or that awkward gap in your `justify-between` layo
 ## Quick start
 
 ```html
-<script src="https://cdn.jsdelivr.net/gh/OWNER/viclasaurus@main/viclasaurus.js"></script>
+<script src="https://cdn.jsdelivr.net/gh/juanpe500/viclasaurus@main/viclasaurus.js"></script>
 
 <div id="strip" style="height:56px"></div>
 <script>
