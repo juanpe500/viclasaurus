@@ -1,0 +1,314 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="description" content="Viclasaurus — a neon pixel runner that lives inside any wide, short div. One JS file, zero dependencies, transparent background.">
+<title>VICLASAURUS — the runner that lives in your layout gaps</title>
+<style>
+  :root {
+    --bg: #0a0c15;
+    --panel: #10142a;
+    --line: #232a4d;
+    --text: #c8d0e0;
+    --dim: #7a86a8;
+    --cyan: #00eaff;
+    --magenta: #ff3ec8;
+    --green: #39ff14;
+    --yellow: #ffe94d;
+    --purple: #8b6dff;
+    --orange: #ff6a00;
+    --red: #ff2e5e;
+  }
+  * { box-sizing: border-box; }
+  html { scroll-behavior: smooth; }
+  body {
+    margin: 0;
+    background:
+      repeating-linear-gradient(0deg, transparent 0 2px, rgba(0, 0, 0, .22) 2px 4px),
+      radial-gradient(1200px 500px at 50% -100px, #141a38 0%, var(--bg) 60%);
+    color: var(--text);
+    font-family: ui-monospace, "Cascadia Mono", Consolas, monospace;
+    line-height: 1.55;
+  }
+  .wrap { max-width: 960px; margin: 0 auto; padding: 0 20px; }
+
+  /* ---------- hero ---------- */
+  header { padding: 56px 0 8px; text-align: center; }
+  .logo {
+    font-size: clamp(34px, 7vw, 58px);
+    font-weight: 700;
+    letter-spacing: 8px;
+    color: var(--cyan);
+    text-shadow: 0 0 6px var(--cyan), 0 0 28px rgba(0, 234, 255, .45);
+    margin: 0;
+  }
+  .logo .bite { color: var(--red); text-shadow: 0 0 6px var(--red), 0 0 28px rgba(255, 46, 94, .5); }
+  .tagline { color: var(--dim); margin: 10px 0 0; }
+  .tagline b { color: var(--text); }
+  .badges { display: flex; gap: 10px; justify-content: center; flex-wrap: wrap; margin: 18px 0 0; }
+  .badge {
+    font-size: 12px; padding: 3px 10px; border: 1px solid var(--line);
+    border-radius: 999px; color: var(--dim); background: rgba(16, 20, 42, .6);
+  }
+  .badge i { font-style: normal; color: var(--green); }
+
+  /* ---------- demo strips ---------- */
+  .strip { width: 100%; margin: 26px 0 6px; }
+  .readout { text-align: center; font-size: 12px; color: var(--dim); margin: 4px 0 0; min-height: 18px; }
+  .striplabel { text-align: center; font-size: 11px; color: var(--dim); letter-spacing: 2px; margin-top: 2px; }
+
+  /* ---------- sections ---------- */
+  section { margin: 64px 0; }
+  h2 {
+    font-size: 18px; letter-spacing: 3px; color: var(--yellow);
+    text-shadow: 0 0 10px rgba(255, 233, 77, .35);
+    border-bottom: 1px solid var(--line); padding-bottom: 8px;
+  }
+  h2::before { content: "» "; color: var(--magenta); }
+  p.lead { color: var(--text); max-width: 70ch; }
+  .muted { color: var(--dim); }
+
+  /* ---------- code ---------- */
+  .codebox { position: relative; }
+  pre {
+    background: #0d1124; border: 1px solid var(--line); border-radius: 6px;
+    padding: 16px; overflow-x: auto; font-size: 13px; line-height: 1.6;
+    color: #9fb3d9;
+  }
+  pre .k { color: var(--magenta); }
+  pre .s { color: var(--green); }
+  pre .c { color: #5a6483; }
+  pre .f { color: var(--cyan); }
+  .copy {
+    position: absolute; top: 8px; right: 8px;
+    background: transparent; border: 1px solid var(--line); border-radius: 4px;
+    color: var(--dim); font: 11px ui-monospace, monospace; padding: 3px 10px; cursor: pointer;
+  }
+  .copy:hover { color: var(--cyan); border-color: var(--cyan); }
+
+  /* ---------- cards ---------- */
+  .grid { display: grid; gap: 14px; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); }
+  .card {
+    background: var(--panel); border: 1px solid var(--line); border-radius: 6px;
+    padding: 14px 16px;
+  }
+  .card h3 { margin: 0 0 6px; font-size: 14px; letter-spacing: 2px; }
+  .card p { margin: 0; font-size: 13px; color: var(--dim); }
+  .lvl { float: right; font-size: 11px; color: var(--dim); letter-spacing: 1px; }
+  .dots { margin: 8px 0 0; }
+  .dot { display: inline-block; width: 10px; height: 10px; border-radius: 2px; margin-right: 6px; }
+
+  /* ---------- tables ---------- */
+  table { width: 100%; border-collapse: collapse; font-size: 13px; }
+  th, td { text-align: left; padding: 8px 10px; border-bottom: 1px solid var(--line); }
+  th { color: var(--dim); font-weight: 400; letter-spacing: 1px; font-size: 11px; text-transform: uppercase; }
+  td code, p code, li code {
+    background: #0d1124; border: 1px solid var(--line); border-radius: 3px;
+    padding: 1px 6px; font-size: 12px; color: var(--cyan);
+  }
+  .key {
+    display: inline-block; border: 1px solid var(--line); border-bottom-width: 3px;
+    border-radius: 4px; padding: 1px 8px; font-size: 12px; background: #0d1124; color: var(--text);
+  }
+
+  /* ---------- cheats ---------- */
+  .warn {
+    border: 1px dashed rgba(255, 46, 94, .5); border-radius: 6px;
+    background: rgba(255, 46, 94, .05); padding: 14px 16px; font-size: 13px;
+  }
+  .warn b { color: var(--red); }
+
+  footer {
+    border-top: 1px solid var(--line); margin-top: 70px; padding: 26px 0 60px;
+    text-align: center; color: var(--dim); font-size: 12px;
+  }
+  footer a { color: var(--cyan); text-decoration: none; }
+  a.anchor { color: var(--cyan); text-decoration: none; }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <!-- ================= HERO ================= -->
+  <header>
+    <h1 class="logo">VICLA<span class="bite">SAURUS</span></h1>
+    <p class="tagline">
+      The <b>no-internet dinosaur</b> grew up — and something grew up behind it.<br>
+      A complete multi-world runner that lives inside any <b>wide, short&nbsp;strip</b> of your page.
+    </p>
+    <div class="badges">
+      <span class="badge"><i>1</i> file</span>
+      <span class="badge"><i>0</i> dependencies</span>
+      <span class="badge"><i>~15</i> kB gzipped</span>
+      <span class="badge">transparent background</span>
+      <span class="badge">40–80px tall</span>
+    </div>
+  </header>
+
+  <div id="hero-strip" class="strip" style="height:64px"></div>
+  <p class="readout" id="readout"></p>
+  <p class="striplabel">▲ LIVE — THIS IS A PLAIN &lt;DIV&gt;, 64PX TALL</p>
+
+  <!-- ================= INSTALL ================= -->
+  <section id="install">
+    <h2>GET IT</h2>
+    <p class="lead">One script tag from jsDelivr's global CDN. No build, no npm, no CORS setup.</p>
+    <div class="codebox">
+      <button class="copy" data-copy="cdn">COPY</button>
+<pre id="cdn-snippet">&lt;<span class="k">script</span> <span class="f">src</span>=<span class="s">"https://cdn.jsdelivr.net/gh/OWNER/viclasaurus@main/viclasaurus.js"</span>&gt;&lt;/<span class="k">script</span>&gt;</pre>
+    </div>
+  </section>
+
+  <!-- ================= USAGE ================= -->
+  <section id="usage">
+    <h2>USE IT</h2>
+    <p class="lead">
+      Point it at any div. Until the player clicks, the div contains nothing but a neon
+      button with your text — zero rendering cost. The click loads the game and starts
+      the first run immediately.
+    </p>
+    <div class="codebox">
+      <button class="copy" data-copy="usage">COPY</button>
+<pre id="usage-snippet"><span class="c">// the div decides the size — the game covers it completely</span>
+<span class="k">const</span> div = document.<span class="f">getElementById</span>(<span class="s">"strip"</span>);
+<span class="k">const</span> dino_game = <span class="f">game_instance</span>(div, <span class="s">"Click me"</span>);
+
+dino_game.score;      <span class="c">// live score (read-only)</span>
+dino_game.level;      <span class="c">// current level</span>
+dino_game.state;      <span class="c">// "waiting" | "run" | "over"</span>
+dino_game.<span class="f">restart</span>();  <span class="c">// fresh run (boots the game if still waiting)</span>
+dino_game.<span class="f">destroy</span>();  <span class="c">// remove everything, free every listener</span></pre>
+    </div>
+    <table>
+      <tr><th>call</th><th>what it does</th></tr>
+      <tr><td><code>game_instance(div)</code></td><td>Launch button labeled <code>PLAY</code></td></tr>
+      <tr><td><code>game_instance(div, "text")</code></td><td>Launch button with your label</td></tr>
+      <tr><td><code>game_instance(div, { label, storageKey })</code></td><td>Options object — <code>storageKey</code> gives a strip its own hi-score bucket</td></tr>
+    </table>
+  </section>
+
+  <div id="strip-b" class="strip" style="height:44px"></div>
+  <p class="striplabel">▲ SAME GAME, 44PX — IT RE-TUNES ITSELF TO ANY HEIGHT</p>
+
+  <!-- ================= WORLDS ================= -->
+  <section id="worlds">
+    <h2>SURVIVE THE CYCLE</h2>
+    <p class="lead">
+      Every level lasts exactly 12 seconds — only the speed climbs. Every 5 levels the game
+      <b>reinvents itself</b> in a warp: new physics, new obstacles, new palette. After the
+      fifth world the cycle restarts, faster, and the darkness starts following you.
+    </p>
+    <div class="grid">
+      <div class="card">
+        <h3 style="color:var(--cyan)">THE DESERT <span class="lvl">LV 1–5</span></h3>
+        <p>The classic. Tap to jump, hold to crouch, press mid-air to slam down. Cacti, birds at three altitudes — one of them only crouching survives.</p>
+        <div class="dots"><span class="dot" style="background:var(--cyan)"></span><span class="dot" style="background:var(--green)"></span><span class="dot" style="background:var(--magenta)"></span><span class="dot" style="background:var(--purple)"></span></div>
+      </div>
+      <div class="card">
+        <h3 style="color:#7ef7ff">THE DEEP <span class="lvl">LV 6–10</span></h3>
+        <p>The land runs out and you dive. Open water, no floor — tap to stroke, hold to sink. Jellyfish bob, mines wait. Drift fully off screen and you're gone.</p>
+        <div class="dots"><span class="dot" style="background:#7ef7ff"></span><span class="dot" style="background:#ff7ad9"></span><span class="dot" style="background:var(--yellow)"></span><span class="dot" style="background:#2e86ff"></span></div>
+      </div>
+      <div class="card">
+        <h3 style="color:var(--yellow)">THE STORM <span class="lvl">LV 11–15</span></h3>
+        <p>Jetpack physics: hold to thrust, release to fall. Laser gates with narrow gaps, and missiles that announce themselves with a blinking <b>!</b> before they arrive.</p>
+        <div class="dots"><span class="dot" style="background:var(--yellow)"></span><span class="dot" style="background:var(--magenta)"></span><span class="dot" style="background:var(--cyan)"></span><span class="dot" style="background:var(--purple)"></span></div>
+      </div>
+      <div class="card">
+        <h3 style="color:#c9a7ff">THE CAVERN <span class="lvl">LV 16–20</span></h3>
+        <p>Classic controls, but you only see a spotlight around you. Stalactites force crouches, bats hunt at head height, and the chaser's eye glints in the dark.</p>
+        <div class="dots"><span class="dot" style="background:#c9a7ff"></span><span class="dot" style="background:var(--green)"></span><span class="dot" style="background:#ff9d3a"></span><span class="dot" style="background:var(--purple)"></span></div>
+      </div>
+      <div class="card">
+        <h3 style="color:#ffd23a">THE MOLTEN PATH <span class="lvl">LV 21–25</span></h3>
+        <p>The floor itself betrays you — lava pits open in the ground. Fast-fall becomes a precision landing tool. Then the cycle begins again… darker.</p>
+        <div class="dots"><span class="dot" style="background:#ffd23a"></span><span class="dot" style="background:var(--green)"></span><span class="dot" style="background:var(--red)"></span><span class="dot" style="background:var(--orange)"></span></div>
+      </div>
+      <div class="card">
+        <h3 style="color:var(--red)">THE CHASER <span class="lvl">ALWAYS</span></h3>
+        <p>Hits don't kill you — they knock you back toward the jaws that eat every obstacle you dodge. Run clean to rebuild your lead. Reach the teeth and it's over.</p>
+        <div class="dots"><span class="dot" style="background:var(--red)"></span><span class="dot" style="background:#f2f7ff"></span><span class="dot" style="background:var(--yellow)"></span></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ================= FEATURES ================= -->
+  <section id="features">
+    <h2>BUILT FOR EMBEDDING</h2>
+    <div class="grid">
+      <div class="card"><h3 style="color:var(--cyan)">◆ TRANSPARENT</h3><p>No background is ever painted. Whatever sits behind the div shows through — headers, footers, hero sections, 404 pages.</p></div>
+      <div class="card"><h3 style="color:var(--green)">◆ POLITE KEYBOARD</h3><p>Space and arrows are only captured while the pointer is over the game or it has focus. It never hijacks scrolling or typing on the host page.</p></div>
+      <div class="card"><h3 style="color:var(--yellow)">◆ AUTO-PAUSE</h3><p>Scrolled out of view? The loop stops completely — zero CPU, zero audio — and resumes exactly where it froze.</p></div>
+      <div class="card"><h3 style="color:var(--magenta)">◆ LAZY</h3><p>Until the button is clicked nothing exists but the button. Put ten strips on a page; you pay only for the ones people play.</p></div>
+      <div class="card"><h3 style="color:var(--purple)">◆ FAIR BY DESIGN</h3><p>Every spawn is checked in arrival-time space, so a fast bird can never overlap a cactus into an unwinnable wall.</p></div>
+      <div class="card"><h3 style="color:var(--orange)">◆ PIXEL-TRUE</h3><p>Tiny logical canvas, CSS-scaled with crisp edges. Real chunky pixels with a neon glow, at any strip size.</p></div>
+    </div>
+  </section>
+
+  <div id="strip-c" class="strip" style="height:80px"></div>
+  <p class="striplabel">▲ 80PX — ROOMIER JUMPS, SAME GAME</p>
+
+  <!-- ================= CONTROLS ================= -->
+  <section id="controls">
+    <h2>CONTROLS</h2>
+    <table>
+      <tr><th>input</th><th>desert / cavern / molten</th><th>the deep</th><th>the storm</th></tr>
+      <tr>
+        <td><span class="key">tap</span> / <span class="key">click</span> / <span class="key">space</span> / <span class="key">↑</span></td>
+        <td>jump</td><td>stroke upward</td><td>thrust (hold)</td>
+      </tr>
+      <tr>
+        <td><span class="key">hold</span> / <span class="key">right-click</span> / <span class="key">↓</span> / <span class="key">S</span></td>
+        <td>crouch · mid-air: slam down</td><td>sink faster</td><td>thrust (hold)</td>
+      </tr>
+    </table>
+    <p class="muted">One finger is enough on touch: tap to act, keep holding for the secondary move.</p>
+  </section>
+
+  <!-- ================= CHEATS ================= -->
+  <section id="cheats">
+    <h2>TESTING CHEATS</h2>
+    <div class="warn">
+      With the game focused, type <b>jp</b> to toggle immortality or <b>sp</b> to fast-forward
+      the whole simulation. Both are <b>displayed on screen for the entire run</b> and any run
+      that ever touched a cheat is permanently disqualified from setting a hi-score.
+      Cheat openly or don't cheat at all.
+    </div>
+  </section>
+
+</div>
+
+<footer>
+  VICLASAURUS · MIT license · one file, no strings ·
+  <a href="https://github.com/OWNER/viclasaurus">github.com/OWNER/viclasaurus</a>
+</footer>
+
+<script src="viclasaurus.js"></script>
+<script>
+  const hero = game_instance(document.getElementById("hero-strip"), "CLICK ME");
+  game_instance(document.getElementById("strip-b"), "PLAY 44PX");
+  game_instance(document.getElementById("strip-c"), "PLAY 80PX");
+
+  // live API showcase: the readout under the hero strip is driven by the
+  // instance's read-only getters
+  const readout = document.getElementById("readout");
+  (function tick() {
+    readout.textContent =
+      "state " + hero.state + "  ·  score " + hero.score + "  ·  level " + hero.level;
+    requestAnimationFrame(tick);
+  })();
+
+  // copy buttons
+  document.querySelectorAll(".copy").forEach((b) => {
+    b.addEventListener("click", () => {
+      const pre = b.parentElement.querySelector("pre");
+      navigator.clipboard.writeText(pre.textContent).then(() => {
+        b.textContent = "COPIED!";
+        setTimeout(() => { b.textContent = "COPY"; }, 1200);
+      });
+    });
+  });
+</script>
+</body>
+</html>
