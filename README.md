@@ -8,6 +8,8 @@ header, a footer, a 404 page, or that awkward gap in your `justify-between` layo
 
 > Five worlds. One chaser. Every obstacle you dodge gets eaten behind you.
 
+**▶ Try it live: [juanpe500.github.io/viclasaurus](https://juanpe500.github.io/viclasaurus/)**
+
 ## Quick start
 
 ```html
@@ -146,9 +148,11 @@ embedding guarantees, same cheats, same API plus `.world`, `.dust` and `.grazes`
 
 ## Demo
 
-Open [`game.html`](game.html) — three live horizontal strips at 64/44/80px, two
-live VICLANAUT columns at 64/48px wide, two live VICLOPS tiles at 280/180px square,
-plus the full docs.
+**Play it now → [juanpe500.github.io/viclasaurus](https://juanpe500.github.io/viclasaurus/)**
+
+Three live horizontal strips at 64/44/80px, two live VICLANAUT columns at 64/48px
+wide, two live VICLOPS tiles at 280/180px square, plus the full docs. (Source:
+[`index.html`](index.html).)
 
 ## License
 
