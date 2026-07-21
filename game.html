@@ -58,6 +58,19 @@
   .readout { text-align: center; font-size: 12px; color: var(--dim); margin: 4px 0 0; min-height: 18px; }
   .striplabel { text-align: center; font-size: 11px; color: var(--dim); letter-spacing: 2px; margin-top: 2px; }
 
+  /* ---------- vertical strips (VICLANAUT) ---------- */
+  .vrow { display: flex; gap: 18px; justify-content: center; align-items: stretch; margin: 26px 0 6px; }
+  .vstrip { width: 64px; min-height: 420px; }
+  .vcard { flex: 1; max-width: 430px; align-self: stretch; }
+  .vcard p { font-size: 12.5px; line-height: 1.6; }
+  @media (max-width: 620px) { .vcard { display: none; } }
+
+  /* ---------- square tiles (VICLOPS) ---------- */
+  .srow { display: flex; gap: 18px; justify-content: center; align-items: center; flex-wrap: wrap; margin: 26px 0 6px; }
+  .sq { flex: none; }
+  .scard { flex: 1; min-width: 240px; max-width: 400px; }
+  .scard p { font-size: 12.5px; line-height: 1.6; }
+
   /* ---------- sections ---------- */
   section { margin: 64px 0; }
   h2 {
@@ -249,6 +262,87 @@ dino_game.<span class="f">destroy</span>();  <span class="c">// remove everythin
   <div id="strip-c" class="strip" style="height:80px"></div>
   <p class="striplabel">▲ 80PX — ROOMIER JUMPS, SAME GAME</p>
 
+  <!-- ================= VERTICAL: VICLANAUT ================= -->
+  <section id="vertical">
+    <h2>IT GOES VERTICAL — VICLANAUT</h2>
+    <p class="lead">
+      The dinosaur got a sibling. <b>VICLANAUT</b> is the same one-file idea rotated
+      90° — a cosmic climber for <b>tall, narrow strips</b> (40–80px wide): sidebars,
+      margins, the sliver your grid leaves between two columns. Countdown, liftoff…
+      and the star-wyrm that ate your launch pad follows you all the way up, eating
+      everything you dodge.
+    </p>
+    <div class="codebox">
+      <button class="copy" data-copy="vcdn">COPY</button>
+<pre id="vcdn-snippet">&lt;<span class="k">script</span> <span class="f">src</span>=<span class="s">"https://cdn.jsdelivr.net/gh/juanpe500/viclasaurus@main/viclanaut.js"</span>&gt;&lt;/<span class="k">script</span>&gt;
+<span class="k">const</span> climb = <span class="f">viclanaut_instance</span>(div, <span class="s">"Click me"</span>); <span class="c">// same API + .altitude / .dust</span></pre>
+    </div>
+    <div class="vrow">
+      <div id="vstrip-a" class="vstrip"></div>
+      <div class="card vcard">
+        <h3 style="color:var(--yellow)">THE ASCENT</h3>
+        <p>
+          <b style="color:var(--cyan)">OPEN SKY</b> — hold a side to steer, tap to
+          dash-step. Birds, balloons, kites swinging on their strings.<br><br>
+          <b style="color:var(--yellow)">THE TEMPEST</b> — no brakes: you bounce
+          between the walls and only choose the direction. Thunderheads telegraph,
+          then <b>fire</b>. Mind the gusts.<br><br>
+          <b style="color:#7ef7ff">HIGH ORBIT</b> — zero-g inertia, tap to
+          retro-brake. Satellites, mines, tumbling debris.<br><br>
+          <b style="color:#c9a7ff">THE BELT</b> — darkness. You get a spotlight,
+          the rocks get everything else.<br><br>
+          <b style="color:#ffd23a">THE CORONA</b> — solar flares erupt from the
+          walls. Then the cycle repeats, darker.<br><br>
+          Chain stardust, graze obstacles for bonuses, grab shields and magnets —
+          and race the dashed <b>BEST</b> line to your own record.
+        </p>
+      </div>
+      <div id="vstrip-b" class="vstrip" style="width:48px"></div>
+    </div>
+    <p class="striplabel">▲ TWO LIVE COLUMNS — 64PX AND 48PX WIDE, PLAIN DIVS</p>
+  </section>
+
+  <!-- ================= SQUARE: VICLOPS ================= -->
+  <section id="square">
+    <h2>IT GOES SQUARE — VICLOPS</h2>
+    <p class="lead">
+      The third sibling lives in the boxes: cards, tiles, avatars, that stubborn
+      square hole in your dashboard. The center of the div is a vast lidded
+      <b>eye</b>, and you are the moth circling its glow. Everything in the dream
+      spirals inward and is devoured; hits knock you into a lower, closer orbit.
+      Touch the pupil and it closes around you.
+    </p>
+    <div class="codebox">
+      <button class="copy" data-copy="scdn">COPY</button>
+<pre id="scdn-snippet">&lt;<span class="k">script</span> <span class="f">src</span>=<span class="s">"https://cdn.jsdelivr.net/gh/juanpe500/viclasaurus@main/viclops.js"</span>&gt;&lt;/<span class="k">script</span>&gt;
+<span class="k">const</span> orbit = <span class="f">viclops_instance</span>(div, <span class="s">"Click me"</span>); <span class="c">// same API + .world / .grazes</span></pre>
+    </div>
+    <div class="srow">
+      <div id="sq-a" class="sq" style="width:280px;height:280px"></div>
+      <div class="card scard">
+        <h3 style="color:var(--red)">THE DREAM, IN RINGS</h3>
+        <p>
+          <b style="color:var(--yellow)">THE GARDEN</b> — hold to spin, tap to
+          dash. Petals, seed pods that burst, briar rings.<br><br>
+          <b style="color:var(--cyan)">THE CLOCKWORK</b> — you revolve forever;
+          tap to reverse. Clock hands sweep, chime rings close in.<br><br>
+          <b style="color:#f2f7ff">THE STATIC</b> — tap to teleport-hop 45°.
+          Glitch blocks flicker into being, and ring gaps <b>lie about where
+          they are</b>.<br><br>
+          <b style="color:#c9a7ff">THE ABYSS</b> — darkness, and some of the
+          lights down here are anglerfish.<br><br>
+          <b style="color:#ffd23a">THE CROWN</b> — flare beams erupt from the
+          eye itself.<br><br>
+          Chain motes, thread rings for graze bonuses, grab the hourglass to
+          slow the whole dream — and when the eye <b>stares</b>, get out of the
+          light. Between runs, it watches your cursor. Try it.
+        </p>
+      </div>
+      <div id="sq-b" class="sq" style="width:180px;height:180px"></div>
+    </div>
+    <p class="striplabel">▲ TWO LIVE TILES — 280PX AND 180PX SQUARE, PLAIN DIVS</p>
+  </section>
+
   <!-- ================= CONTROLS ================= -->
   <section id="controls">
     <h2>CONTROLS</h2>
@@ -285,10 +379,20 @@ dino_game.<span class="f">destroy</span>();  <span class="c">// remove everythin
 </footer>
 
 <script src="viclasaurus.js"></script>
+<script src="viclanaut.js"></script>
+<script src="viclops.js"></script>
 <script>
   const hero = game_instance(document.getElementById("hero-strip"), "CLICK ME");
   game_instance(document.getElementById("strip-b"), "PLAY 44PX");
   game_instance(document.getElementById("strip-c"), "PLAY 80PX");
+
+  // the vertical sibling: same idea, rotated 90°
+  viclanaut_instance(document.getElementById("vstrip-a"), "CLIMB 64PX");
+  viclanaut_instance(document.getElementById("vstrip-b"), "CLIMB 48PX");
+
+  // the square sibling: same idea, wrapped into a circle
+  viclops_instance(document.getElementById("sq-a"), "WAKE IT");
+  viclops_instance(document.getElementById("sq-b"), "WAKE IT");
 
   // live API showcase: the readout under the hero strip is driven by the
   // instance's read-only getters

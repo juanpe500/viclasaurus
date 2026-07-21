@@ -86,9 +86,69 @@ With the game focused, type `jp` (immortality) or `sp` (fast-forward). Both are
 displayed on screen for the whole run, and any run that touched a cheat can never set
 a hi-score.
 
+## Vertical? — VICLANAUT
+
+The sibling file [`viclanaut.js`](viclanaut.js) is the same idea rotated 90°: a cosmic
+climber that lives in any **tall, narrow strip** (40–80px wide) — sidebars, margins,
+the gutter your grid leaves between two columns. Countdown, liftoff… and the
+star-wyrm that ate your launch pad follows you up, devouring everything you dodge.
+
+```html
+<script src="https://cdn.jsdelivr.net/gh/juanpe500/viclasaurus@main/viclanaut.js"></script>
+
+<div id="column" style="width:64px;height:420px"></div>
+<script>
+  const climb = viclanaut_instance(document.getElementById("column"), "Click me");
+</script>
+```
+
+Hold a side to steer, tap to act — but every 5 levels the physics reinvent
+themselves: **OPEN SKY** (steer + dash) → **THE TEMPEST** (wall-bounce, no brakes,
+wind gusts, thunderheads that telegraph and then *fire*) → **HIGH ORBIT** (zero-g
+inertia, tap to retro-brake) → **THE BELT** (darkness + spotlight) → **THE CORONA**
+(solar flares from the walls) → faster, darker remixes.
+
+Extras the dinosaur doesn't have: stardust chains, graze bonuses, shield + magnet
+pickups, and a dashed **BEST** line in the world itself that you get to watch
+yourself fly past. Same embedding guarantees, same cheats, same API plus
+`.altitude` and `.dust`.
+
+## Square? — VICLOPS
+
+The third sibling, [`viclops.js`](viclops.js), lives in the boxes: cards, tiles,
+avatars, any div **close to a square** (150–500px a side). The center of the div is
+a vast lidded **eye**, and you are the moth circling its glow. Everything spirals
+inward and is devoured; every obstacle you dodge gets swallowed behind you (the
+pupil dilates — it is pleased). Hits knock you into a lower, closer orbit; fly
+clean to climb back out; touch the pupil and the eye closes around you.
+
+```html
+<script src="https://cdn.jsdelivr.net/gh/juanpe500/viclasaurus@main/viclops.js"></script>
+
+<div id="tile" style="width:280px;height:280px"></div>
+<script>
+  const orbit = viclops_instance(document.getElementById("tile"), "Click me");
+</script>
+```
+
+Every 5 levels the dream blinks into a new physics: **THE GARDEN** (spin + dash,
+seed pods that burst) → **THE CLOCKWORK** (you revolve forever, tap to reverse —
+clock hands sweep, chime rings contract) → **THE STATIC** (tap to teleport-hop 45°,
+ring gaps glitch and lie) → **THE ABYSS** (darkness — and some of the lights are
+anglerfish lures) → **THE CROWN** (flare beams from the eye itself) → faster,
+darker remixes.
+
+Its own tricks: contracting rings with fairness-coupled gaps, the sweeping **GAZE**
+that drags anyone it sees inward, an hourglass that slow-motions the whole dream,
+mote chains, graze bonuses, a golden record-ring around the iris — and between
+runs the eye half-opens and **follows your cursor** around the tile. Same
+embedding guarantees, same cheats, same API plus `.world`, `.dust` and `.grazes`.
+
 ## Demo
 
-Open [`game.html`](game.html) — three live strips at 64/44/80px plus the full docs.
+Open [`game.html`](game.html) — three live horizontal strips at 64/44/80px, two
+live VICLANAUT columns at 64/48px wide, two live VICLOPS tiles at 280/180px square,
+plus the full docs.
 
 ## License
 
