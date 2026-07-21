@@ -265,6 +265,7 @@
       "R":"111101110101101","S":"111100111001111","T":"111010010010010",
       "U":"101101101101111","V":"101101101101010","W":"101101101111101",
       "Y":"101101010010010","!":"010010010000010"," ":"000000000000000",
+      "X":"101101010101101","+":"000010111010000",
     };
     function textW(s) { return s.length * 4 - 1; }
     function drawText(s, x, y, color) {
@@ -346,6 +347,9 @@
     let pEnemies = [], pSpawnT = 0, pParticles = [];
     let pLead = 1, pIfr = 0, pDying = false, pDieT = 0;
     let pOnResize = null, pOnScroll = null;
+    // the "alive / LSD" layer: hue travel, motes, coins, combos, rings, trail
+    let pHue = 0, pCombo = 0, pComboT = 0, pCoinT = 0;
+    let pMotes = [], pCoins = [], pFloaters = [], pRings = [], pTrail = [];
 
     try { hiScore = +localStorage.getItem(storageKey) || 0; } catch (e) {}
 
@@ -1335,6 +1339,7 @@
       PX = Math.max(1, Math.round(cr.height / Math.max(1, H)));
       pctx.setTransform(pdpr, 0, 0, pdpr, 0, 0);
       pctx.imageSmoothingEnabled = false;
+      if (pageMode) pSeedMotes();                    // refit the mote density
     }
 
     // snapshot the TOP EDGE of every visible DOM box as a one-way ledge —
@@ -1431,6 +1436,7 @@
       pageCanvas.remove();
       pageCanvas = null; pctx = null;
       plats = []; pEnemies = []; pParticles = [];
+      pMotes = []; pCoins = []; pFloaters = []; pRings = []; pTrail = [];
     }
 
     function startEscape() {
@@ -1456,6 +1462,10 @@
       pOnGround = true; pMoveL = pMoveR = false; pFacing = 1;
       pLead = 1; pIfr = 1.0; pDying = false; pDieT = 0;
       pEnemies = []; pParticles = []; pSpawnT = 0.9; platScanT = 0.5;
+      pHue = 0; pCombo = 0; pComboT = 0; pCoinT = 1.0;
+      pCoins = []; pFloaters = []; pRings = []; pTrail = [];
+      pSeedMotes();
+      for (let i = 0; i < 5; i++) pSpawnCoin();       // a few coins waiting on arrival
       toast = ""; toastT = 0;
       ctx.clearRect(0, 0, W, H);                     // wipe the frozen strip behind the overlay
     }
@@ -1524,6 +1534,54 @@
         });
       }
     }
+    // ---- the "alive" layer: color travel, motes, coins, rings, floaters ----
+    const sCoin = () => {
+      beep(1046, 0.05, "square", 0.03);
+      setTimeout(() => beep(1568, 0.06, "square", 0.028), 45);
+    };
+    // a color that slowly travels the whole spectrum (the LSD feel). `h` is an
+    // offset from the current global hue; s/l percent; optional alpha.
+    function pcol(h, s, l, a) {
+      const hh = (((pHue + h) % 360) + 360) % 360;
+      return "hsla(" + hh + "," + s + "%," + l + "%," + (a == null ? 1 : a) + ")";
+    }
+    function pSeedMotes() {
+      pMotes = [];
+      const n = Math.min(80, Math.max(24, Math.round(pvw * pvh / 22000)));
+      for (let i = 0; i < n; i++) pMotes.push({
+        x: Math.random() * pvw, y: Math.random() * pvh,
+        vx: (Math.random() * 2 - 1) * 16, vy: (Math.random() * 2 - 1) * 16,
+        h: Math.random() * 360, r: 0.7 + Math.random() * 2, ph: Math.random() * 6.28,
+      });
+    }
+    function pBurst(x, y, n, hue) {
+      for (let i = 0; i < n; i++) {
+        const a = Math.random() * 6.2832, sp = (30 + Math.random() * 130) * Math.max(1, PX) * 0.7;
+        const life = 0.4 + Math.random() * 0.45;
+        pParticles.push({
+          type: "spark", x: x, y: y, vx: Math.cos(a) * sp, vy: Math.sin(a) * sp,
+          g: 50 * Math.max(1, PX), size: Math.max(1, PX) * (Math.random() < 0.5 ? 1 : 2),
+          col: "hsl(" + (((hue + Math.random() * 44 - 22) % 360) + 360) % 360 + ",100%," + (58 + Math.random() * 22 | 0) + "%)",
+          life: life, ttl: life,
+        });
+      }
+    }
+    function pRing(x, y, hue, max) {
+      pRings.push({ x: x, y: y, r: 2, max: max || 46 * Math.max(1, PX), hue: hue, life: 0.45, ttl: 0.45 });
+    }
+    function pFloat(x, y, txt, hue) {
+      pFloaters.push({ x: x, y: y, txt: txt, hue: hue, life: 0.9, ttl: 0.9 });
+    }
+    function pSpawnCoin() {
+      if (plats.length < 2) return;
+      const pl = plats[(Math.random() * plats.length) | 0];
+      if (pl.floor) return;                    // not on the very bottom line
+      const cx = pl.x + 12 + Math.random() * Math.max(1, pl.w - 24);
+      const cy = pl.y - (12 + Math.random() * 46);
+      if (cy < 20) return;
+      pCoins.push({ x: cx, y: cy, ph: Math.random() * 6.28 });
+    }
+
     // the single ledge to light up: the one under the runner's feet (standing
     // on it, or dropping onto it) — never the whole page of edges at once
     function pCurrentLedge() {
@@ -1540,6 +1598,8 @@
     function updatePage(dt) {
       if (dt > 0.05) dt = 0.05;              // keep physics sane if turbo/lag inflates dt
       pFade += (pFadeTarget - pFade) * Math.min(1, dt * 6);
+      pHue += dt * 26;                       // the whole world drifts through the spectrum
+      if (pComboT > 0) { pComboT -= dt; if (pComboT <= 0) pCombo = 0; }
       if (toastT > 0) toastT -= dt;
       if (shakeT > 0) shakeT -= dt;
       if (pIfr > 0) pIfr -= dt;
@@ -1597,6 +1657,7 @@
         const fx = ppx + dw * 0.5;
         pAddRocks(fx, landedY, impV > 480 ? 9 : 5, landedY);
         if (impV > 480) pAddSmoke(fx, landedY, 4);
+        pRing(fx, landedY, (pHue + 120) % 360, (impV > 480 ? 60 : 38) * Math.max(1, PX));
       }
       pPrevFeet = ppy + dh;
       if (pCoyote > 0) pCoyote -= dt;
@@ -1604,8 +1665,11 @@
       if (pJumpBuf > 0 && (pOnGround || pCoyote > 0)) {
         pvy = JUMP; pOnGround = false; pCoyote = 0; pJumpBuf = 0;
         pAddSmoke(ppx + dw * 0.5, ppy + dh, 6);   // puff off the launch
+        pRing(ppx + dw * 0.5, ppy + dh, (pHue + 120) % 360, 34 * Math.max(1, PX));
         sJump();
       }
+      pTrail.unshift({ x: ppx, y: ppy });         // comet trail sample
+      if (pTrail.length > 9) pTrail.pop();
 
       // --- enemies: spawn from the edges, home in on the runner ---
       pSpawnT -= dt;
@@ -1637,6 +1701,41 @@
         if (pt.type === "rock" && pt.gy != null && pt.y >= pt.gy) { pt.y = pt.gy; pt.vy = 0; pt.vx *= 0.5; }
       }
       pParticles = pParticles.filter((pt) => pt.ttl > 0);
+
+      // --- coins: spawn on ledges, magnet-pull when near, collect w/ combo ---
+      pCoinT -= dt;
+      if (pCoinT <= 0 && pCoins.length < 9) { pSpawnCoin(); pCoinT = 1.1 + Math.random() * 1.4; }
+      const kx = ppx + DINO_W * PX / 2, ky = ppy + DINO_H * PX / 2;
+      const mag = 70 * Math.max(1, PX), grab = Math.max(10, 9 * PX);
+      for (const c of pCoins) {
+        c.ph += dt * 3;
+        const dx = kx - c.x, dy = ky - c.y, d = Math.hypot(dx, dy) || 1;
+        if (d < mag) { c.x += dx / d * 260 * dt; c.y += dy / d * 260 * dt; }
+        if (d < grab) {
+          c.got = true;
+          pCombo++; pComboT = 1.4;
+          const val = (25 * (1 + Math.min(4, (pCombo - 1) * 0.5))) | 0;
+          score += val;
+          const hue = (pHue + 50) % 360;
+          pBurst(c.x, c.y, 14, hue);
+          pRing(c.x, c.y, hue, 30 * Math.max(1, PX));
+          pFloat(c.x, c.y - 3, "+" + val, hue);
+          sCoin();
+        }
+      }
+      pCoins = pCoins.filter((c) => !c.got);
+
+      // motes drift and swirl; floaters rise and fade; rings expand and fade
+      for (const m of pMotes) {
+        m.x += (m.vx + Math.sin(animT * 0.6 + m.ph) * 12) * dt;
+        m.y += (m.vy + Math.cos(animT * 0.5 + m.ph) * 12) * dt;
+        if (m.x < -6) m.x += pvw + 12; else if (m.x > pvw + 6) m.x -= pvw + 12;
+        if (m.y < -6) m.y += pvh + 12; else if (m.y > pvh + 6) m.y -= pvh + 12;
+      }
+      for (const f of pFloaters) { f.ttl -= dt; f.y -= 34 * dt; }
+      pFloaters = pFloaters.filter((f) => f.ttl > 0);
+      for (const rg of pRings) { rg.ttl -= dt; rg.r += (rg.max - rg.r) * Math.min(1, dt * 8); }
+      pRings = pRings.filter((rg) => rg.ttl > 0);
     }
 
     // the chaser's jaws swinging shut over the runner on death
@@ -1690,32 +1789,92 @@
       pctx.save();
       if (shakeT > 0) pctx.translate((Math.random() * 5 - 2) | 0, (Math.random() * 5 - 2) | 0);
 
-      // dim the page so the neon pops (the real page still shows through)
+      const SPX = Math.max(1, PX);
+      const dinoC = pcol(0, 100, 66);
+      const groundC = pcol(195, 100, 62);
+      const enemyC = pcol(310, 100, 66);
+
+      // psychedelic backdrop: a hue-shifting dark wash + a slow breathing glow
       pctx.save();
-      pctx.globalAlpha = 0.45 * pFade;
-      pctx.fillStyle = "#04010f";
+      pctx.globalAlpha = 0.5 * pFade;
+      pctx.fillStyle = pcol(205, 65, 4);
       pctx.fillRect(-4, -4, pvw + 8, pvh + 8);
+      const pulse = 0.5 + 0.5 * Math.sin(animT * 1.4);
+      const gg = pctx.createRadialGradient(
+        pvw / 2, pvh / 2, 0, pvw / 2, pvh / 2, Math.max(pvw, pvh) * (0.34 + 0.12 * pulse));
+      gg.addColorStop(0, pcol(0, 100, 30, 0.18 * pFade));
+      gg.addColorStop(1, pcol(180, 100, 6, 0));
+      pctx.globalAlpha = 1;
+      pctx.fillStyle = gg;
+      pctx.fillRect(0, 0, pvw, pvh);
       pctx.restore();
 
-      // ONLY the ledge under the runner lights up — the one it's standing on,
-      // or the one it's dropping toward mid-jump — not the whole page of edges
+      // drifting motes — the air itself is alive
+      pctx.save();
+      pctx.globalCompositeOperation = "lighter";
+      for (const m of pMotes) {
+        pctx.globalAlpha = (0.16 + 0.24 * (0.5 + 0.5 * Math.sin(animT * 2 + m.ph))) * pFade;
+        pctx.fillStyle = "hsl(" + (((m.h + pHue) % 360)) + ",100%,66%)";
+        pctx.beginPath(); pctx.arc(m.x, m.y, m.r * SPX * 1.4, 0, 6.2832); pctx.fill();
+      }
+      pctx.restore();
+
       if (pageMode && !pDying) {
+        // ONLY the ledge under the runner lights up — where it stands or lands
         const ledge = pCurrentLedge();
         if (ledge) {
           pctx.save();
-          pctx.globalAlpha = 0.9 * pFade;
-          pctx.fillStyle = p.ground; pctx.shadowColor = p.ground; pctx.shadowBlur = GLOW * PX * 2;
+          pctx.globalAlpha = 0.95 * pFade;
+          pctx.fillStyle = groundC; pctx.shadowColor = groundC; pctx.shadowBlur = GLOW * SPX * 3;
           pctx.fillRect(ledge.x | 0, ledge.y | 0, ledge.w | 0, ledge.floor ? 3 : 2);
           pctx.restore();
         }
-      }
 
-      if (pageMode && !pDying) {
+        // expanding shockwave rings (jump / land / coin)
+        pctx.save();
+        pctx.globalCompositeOperation = "lighter";
+        for (const rg of pRings) {
+          const a = Math.max(0, rg.ttl / rg.life);
+          pctx.globalAlpha = a * 0.7 * pFade;
+          pctx.strokeStyle = "hsl(" + rg.hue + ",100%,65%)";
+          pctx.shadowColor = pctx.strokeStyle; pctx.shadowBlur = GLOW * SPX * 2;
+          pctx.lineWidth = SPX;
+          pctx.beginPath(); pctx.arc(rg.x, rg.y, rg.r, 0, 6.2832); pctx.stroke();
+        }
+        pctx.restore();
+
+        // comet trail behind the runner
+        pctx.save();
+        pctx.globalCompositeOperation = "lighter";
+        for (let i = pTrail.length - 1; i >= 1; i--) {
+          const tp = pTrail[i];
+          pctx.globalAlpha = (1 - i / pTrail.length) * 0.5 * pFade;
+          pctx.fillStyle = pcol(i * 26, 100, 62);
+          const s = Math.max(2, 2 * PX);
+          pctx.fillRect((tp.x + DINO_W * PX * 0.4) | 0, (tp.y + DINO_H * PX * 0.4) | 0, s, s);
+        }
+        pctx.restore();
+
+        // coins — spinning gold, glowing
+        for (const c of pCoins) {
+          const sq = Math.abs(Math.cos(c.ph));
+          const R = Math.max(3, 3 * PX);
+          pctx.save();
+          pctx.globalAlpha = pFade;
+          const cc = "hsl(" + ((46 + pHue * 0.3) % 360) + ",100%,58%)";
+          pctx.fillStyle = cc; pctx.shadowColor = cc; pctx.shadowBlur = GLOW * SPX * 2.5;
+          pctx.beginPath();
+          pctx.ellipse(c.x, c.y, Math.max(1, R * sq), R, 0, 0, 6.2832);
+          pctx.fill();
+          pctx.restore();
+        }
+
+        // enemies (hue-cycled), then the runner
         for (const e of pEnemies) {
           const rows = e.kind === "mine" ? MINE
                      : e.kind === "missile" ? MISSILE
                      : ((animT * 8 | 0) % 2 ? BIRD_A : BIRD_B);
-          pSprite(rows, e.x, e.y, p.ac, PX * 0.7, e.vx > 0);
+          pSprite(rows, e.x, e.y, enemyC, PX * 0.7, e.vx > 0);
         }
         const blink = pIfr > 0 && (animT * 12 | 0) % 2 === 0;
         if (!blink) {
@@ -1723,14 +1882,27 @@
           const frame = pOnGround
             ? (moving ? ((animT * 12 | 0) % 2 ? DINO_RUN_A : DINO_RUN_B) : DINO_RUN_A)
             : DINO_JUMP;
-          pSprite(frame, ppx, ppy, p.fg, PX, pFacing < 0);
+          pSprite(frame, ppx, ppy, dinoC, PX, pFacing < 0);
         }
-        // jump/land dust and rocks — same fx language as the strip
+
+        // dust, rocks, coin sparks
+        pctx.save();
+        pctx.globalCompositeOperation = "lighter";
         for (const pt of pParticles) {
           const fade = Math.max(0, pt.ttl / pt.life);
-          pctx.globalAlpha = (pt.type === "smoke" ? 0.55 : 1) * fade * pFade;
-          pctx.fillStyle = pt.type === "smoke" ? p.fg : p.ground;
+          pctx.globalAlpha = (pt.type === "smoke" ? 0.5 : 1) * fade * pFade;
+          pctx.fillStyle = pt.col || (pt.type === "smoke" ? dinoC : groundC);
           pctx.fillRect(pt.x | 0, pt.y | 0, Math.ceil(pt.size), Math.ceil(pt.size));
+        }
+        pctx.restore();
+        pctx.globalAlpha = 1;
+
+        // floating +score pops
+        for (const f of pFloaters) {
+          const a = Math.min(1, f.ttl / f.life);
+          pctx.globalAlpha = a * pFade;
+          const s = Math.max(2, PX | 0) + 1;
+          pText(f.txt, (f.x - pTextW(f.txt, s) / 2) | 0, f.y | 0, "hsl(" + f.hue + ",100%,68%)", s);
         }
         pctx.globalAlpha = 1;
       }
@@ -1738,16 +1910,20 @@
 
       // HUD
       const sc = String(score | 0).padStart(5, "0");
-      pText("SCORE " + sc, 10, 10, p.fg, Math.max(2, (PX / 2) | 0));
-      pHealthBar(p);
+      pText("SCORE " + sc, 10, 10, dinoC, Math.max(2, (PX / 2) | 0));
+      if (pComboT > 0 && pCombo > 1) {
+        const cm = "X" + pCombo;
+        pText(cm, 10, 10 + 7 * Math.max(2, (PX / 2) | 0), "hsl(" + ((46 + pHue * 0.3) % 360) + ",100%,60%)", Math.max(2, (PX / 2) | 0));
+      }
+      pHealthBar({ fg: dinoC, ac: enemyC });
       if (pageMode && !pDying) {
         const hint = "ARROWS MOVE   SPACE JUMP   ESC OUT";
-        pText(hint, 10, (pvh - 14 * (PX / 2.4)) | 0, p.ground, Math.max(2, (PX / 2.4) | 0));
+        pText(hint, 10, (pvh - 14 * (PX / 2.4)) | 0, groundC, Math.max(2, (PX / 2.4) | 0));
       }
       if (escaping || (!pageMode && pFade > 0.05)) {
         const s2 = Math.max(3, PX | 0);
         const m = "ESCAPING";
-        pText(m, ((pvw - pTextW(m, s2)) / 2) | 0, ((pvh - 5 * s2) / 2) | 0, p.ac, s2);
+        pText(m, ((pvw - pTextW(m, s2)) / 2) | 0, ((pvh - 5 * s2) / 2) | 0, enemyC, s2);
       }
       pctx.restore();
     }
