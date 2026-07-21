@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>VICLASAURUS 4D — the runner that breaks out of the strip</title>
+<style>
+  :root {
+    --bg: #0a0c15; --panel: #10142a; --line: #232a4d; --text: #c8d0e0;
+    --dim: #7a86a8; --cyan: #00eaff; --magenta: #ff3ec8; --green: #39ff14;
+    --yellow: #ffe94d; --purple: #8b6dff; --orange: #ff6a00; --red: #ff2e5e;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    background:
+      repeating-linear-gradient(0deg, transparent 0 2px, rgba(0,0,0,.22) 2px 4px),
+      radial-gradient(1200px 500px at 50% -100px, #141a38 0%, var(--bg) 60%);
+    color: var(--text);
+    font-family: ui-monospace, "Cascadia Mono", Consolas, monospace;
+    line-height: 1.55;
+  }
+  .wrap { max-width: 960px; margin: 0 auto; padding: 0 20px; }
+  header { padding: 48px 0 8px; text-align: center; }
+  .logo {
+    font-size: clamp(30px, 6vw, 52px); font-weight: 700; letter-spacing: 7px;
+    color: var(--cyan); margin: 0;
+    text-shadow: 0 0 6px var(--cyan), 0 0 28px rgba(0,234,255,.45);
+  }
+  .logo .dim4 { color: var(--magenta); text-shadow: 0 0 6px var(--magenta); }
+  .tagline { color: var(--dim); margin: 10px 0 0; }
+  .tagline b { color: var(--text); }
+  .strip { width: 100%; margin: 24px 0 6px; }
+  .striplabel { text-align: center; font-size: 11px; color: var(--dim); letter-spacing: 2px; margin-top: 2px; }
+  .howto {
+    border: 1px dashed rgba(0,234,255,.5); border-radius: 6px;
+    background: rgba(0,234,255,.05); padding: 14px 16px; font-size: 13px; margin: 24px 0;
+  }
+  .howto b { color: var(--cyan); }
+  .key {
+    display: inline-block; border: 1px solid var(--line); border-bottom-width: 3px;
+    border-radius: 4px; padding: 1px 8px; font-size: 12px; background: #0d1124; color: var(--text);
+  }
+  section { margin: 52px 0; }
+  h2 {
+    font-size: 18px; letter-spacing: 3px; color: var(--yellow);
+    text-shadow: 0 0 10px rgba(255,233,77,.35);
+    border-bottom: 1px solid var(--line); padding-bottom: 8px;
+  }
+  h2::before { content: "» "; color: var(--magenta); }
+  p.lead { color: var(--text); max-width: 70ch; }
+  .grid { display: grid; gap: 14px; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); }
+  .card { background: var(--panel); border: 1px solid var(--line); border-radius: 6px; padding: 14px 16px; }
+  .card h3 { margin: 0 0 6px; font-size: 14px; letter-spacing: 2px; }
+  .card p { margin: 0; font-size: 13px; color: var(--dim); }
+  table { width: 100%; border-collapse: collapse; font-size: 13px; }
+  th, td { text-align: left; padding: 8px 10px; border-bottom: 1px solid var(--line); }
+  th { color: var(--dim); font-weight: 400; letter-spacing: 1px; font-size: 11px; text-transform: uppercase; }
+  button.demo {
+    background: transparent; border: 1px solid var(--cyan); border-radius: 4px;
+    color: var(--cyan); font: 12px ui-monospace, monospace; padding: 6px 14px; cursor: pointer; margin: 4px;
+  }
+  footer { border-top: 1px solid var(--line); margin-top: 60px; padding: 24px 0 60px; text-align: center; color: var(--dim); font-size: 12px; }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header>
+    <h1 class="logo">VICLASAURUS <span class="dim4">4D</span></h1>
+    <p class="tagline">
+      Clear level 5 and the runner <b>breaks out of the strip</b>.<br>
+      The whole page becomes the level — jump on every heading, button and paragraph.
+    </p>
+  </header>
+
+  <div id="hero-strip" class="strip" style="height:64px"></div>
+  <p class="striplabel">▲ START HERE — A PLAIN 64PX &lt;DIV&gt;</p>
+
+  <div class="howto">
+    <b>To reach the break-out fast:</b> click the strip to start, then — with the
+    game focused — type <span class="key">s</span><span class="key">p</span> to
+    fast-forward the sim ~10×. In a few seconds you'll clear level 5 and
+    <b>burst onto this page</b>. Then: <span class="key">← →</span> move,
+    <span class="key">Space</span> jump, <span class="key">Esc</span> to bail out.
+    (The <span class="key">s</span><span class="key">p</span> turbo taints the run,
+    so it won't set a hi-score — that's expected while testing.)
+  </div>
+
+  <section id="what">
+    <h2>WHAT HAPPENS AT LEVEL 6</h2>
+    <p class="lead">
+      Instead of diving into THE DEEP, the runner launches up out of its little
+      strip. A full-viewport overlay takes the whole screen, and every visible box
+      on this page is scanned into a one-way platform — you can jump up through a
+      ledge from below and land on it from above. Neon enemies home in from the
+      edges; each hit knocks your health bar down. When it empties, the chaser's
+      jaws swing shut and you drop back into the strip as GAME OVER.
+    </p>
+  </section>
+
+  <section id="ledges">
+    <h2>THINGS YOU CAN STAND ON</h2>
+    <div class="grid">
+      <div class="card"><h3 style="color:var(--cyan)">HEADINGS</h3><p>Every h1–h6 top edge is a ledge. Big text makes wide, comfy platforms.</p></div>
+      <div class="card"><h3 style="color:var(--green)">BUTTONS</h3><p>Any button, link or input becomes solid — hop across a toolbar.</p></div>
+      <div class="card"><h3 style="color:var(--yellow)">PARAGRAPHS</h3><p>Lines of real text become thin ledges. Precise little hops.</p></div>
+      <div class="card"><h3 style="color:var(--magenta)">TABLE ROWS</h3><p>Cells and rows are platforms too — climb a table like a staircase.</p></div>
+      <div class="card"><h3 style="color:var(--purple)">CARDS &amp; PANELS</h3><p>These very cards. Their top edges hold you up.</p></div>
+      <div class="card"><h3 style="color:var(--orange)">THE FLOOR</h3><p>The bottom of the viewport always catches you — you never fall forever.</p></div>
+    </div>
+  </section>
+
+  <section id="buttons">
+    <h2>SOME BUTTONS TO LAND ON</h2>
+    <p class="lead">Purely here as platforms — hop from one to the next.</p>
+    <button class="demo">ALPHA</button>
+    <button class="demo">BRAVO</button>
+    <button class="demo">CHARLIE</button>
+    <button class="demo">DELTA</button>
+    <button class="demo">ECHO</button>
+    <button class="demo">FOXTROT</button>
+    <button class="demo">GOLF</button>
+    <button class="demo">HOTEL</button>
+  </section>
+
+  <section id="table">
+    <h2>A TABLE TO CLIMB</h2>
+    <table>
+      <tr><th>level</th><th>world</th><th>note</th></tr>
+      <tr><td>1–5</td><td>THE DESERT</td><td>the ordinary runner</td></tr>
+      <tr><td>6</td><td>THE PAGE</td><td>you break out — right here</td></tr>
+      <tr><td>—</td><td>THE CHASER</td><td>always hunting, edge of the screen</td></tr>
+    </table>
+  </section>
+
+</div>
+
+<footer>VICLASAURUS 4D · experimental break-out variant · one file</footer>
+
+<script src="viclasaurus-4d.js"></script>
+<script>
+  const hero = game_instance(document.getElementById("hero-strip"), "CLICK ME");
+  window.hero = hero;   // exposed for testing
+</script>
+</body>
+</html>
