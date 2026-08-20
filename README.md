@@ -1,6 +1,20 @@
+<div align="center">
+
 # 🦖 VICLASAURUS
 
-**The no-internet dinosaur grew up — and something grew up behind it.**
+<b>The no-internet dinosaur grew up — and something grew up behind it.</b>
+
+<p>
+  <a href="https://juanpe500.github.io/viclasaurus/"><img src="https://img.shields.io/badge/▶_play_live-0d9488?style=flat-square" alt="Play live"></a>
+  <a href="LICENSE"><img src="https://img.shields.io/badge/license-MIT-3fb950?style=flat-square" alt="MIT License"></a>
+  <img src="https://img.shields.io/badge/dependencies-0-0891b2?style=flat-square" alt="Zero dependencies">
+  <img src="https://img.shields.io/badge/background-transparent-475569?style=flat-square" alt="Transparent">
+  <img src="https://img.shields.io/badge/worlds-5-db2777?style=flat-square" alt="Five worlds">
+</p>
+
+<img src="assets/hero.png" alt="Viclasaurus: a neon dino runner strip being chased by a giant dino head, plus the VICLOPS eye tile and the VICLANAUT vertical climber" width="100%">
+
+</div>
 
 A complete neon pixel runner that lives inside any **wide, short strip** of your page
 (40–80px tall). One JS file, zero dependencies, transparent background. Drop it in a
